@@ -1,6 +1,5 @@
 from sys import setrecursionlimit
-import SR_simple_field
-import SR_polynom_field
+import SR_simple_field as register
 
 n = []
 table_phi = []
@@ -28,7 +27,6 @@ def h_fun(vec, x):
     return vec
 
 
-
 def f_fun(vec, x):
     return phi_ksi_fun(vec.copy(), phi_ksi_fun(vec.copy(), x, "phi"), "ksi")
 
@@ -50,13 +48,18 @@ def bin_to_dec(vec):
     return number
 
 
+# ориентированный граф
 def make_reach_table():
     global n
     reach_table = []
+    register_for_zeroes = register.SR(2, register.to_bin(0, register.rn), 'table', 'functions/fi.txt', 'functions/psi.txt')
+    register_for_one = register.SR(2, register.to_bin(0, register.rn), 'table', 'functions/fi.txt', 'functions/psi.txt')
     for i in range(2 ** n):
         table_line = [0] * 2 ** n
-        table_line[bin_to_dec(h_fun(dec_to_bin(i), 0))] = 1
-        table_line[bin_to_dec(h_fun(dec_to_bin(i), 1))] = 1
+        print("register_for_zeroes: {}".format(register_for_zeroes.s))
+        table_line[register_for_zeroes.step(0)] = 1
+        print("register_for_one: {}".format(register_for_one.s))
+        table_line[register_for_one.step(1)] = 1
         reach_table.append(table_line)
     return reach_table
 
@@ -82,7 +85,8 @@ def depth_first_search(reach_table, mode):
 
             while len(stack) != 0:
                 for j in range(len(reach_table[i])):
-                    if (((reach_table[i][j] == 1 or reach_table[j][i] == 1) and mode == "normal") or (reach_table[i][j] == 1 and mode == "strong")) and i != j:
+                    if (((reach_table[i][j] == 1 or reach_table[j][i] == 1) and mode == "normal") or (
+                            reach_table[i][j] == 1 and mode == "strong")) and i != j:
                         flag = False
                         for item in result:
                             if j in item:
@@ -138,7 +142,7 @@ def equal_prep():
     global n
     equal_array = []
     state_info = []
-    for i in range(2**n):
+    for i in range(2 ** n):
         state = dec_to_bin(i)
         for j in [0, 1]:
             state_info.append(bin_to_dec(h_fun(state.copy(), j)))
@@ -192,7 +196,8 @@ def equal_search_final(equal_array, equal_classes):
                 class_0 = find_class(equal_classes, equal_array[item[i]][0])
                 class_1 = find_class(equal_classes, equal_array[item[i]][2])
                 for j in range(i + 1, len(item)):
-                    if find_class(equal_classes, equal_array[item[j]][0]) == class_0 and find_class(equal_classes, equal_array[item[j]][2]) == class_1:
+                    if find_class(equal_classes, equal_array[item[j]][0]) == class_0 and find_class(equal_classes,
+                                                                                                    equal_array[item[j]][2]) == class_1:
                         new_class.append(item[j])
                 new_classes.append(new_class)
                 new_class = []
@@ -219,29 +224,6 @@ def main():
     print("Automat is strongly linked") if len(strong_links) == 1 else print("Automat is not strongly linked")
     print("Strongly linked components: {}".format(strong_links))
     print("Total: {} strongly linked components".format(len(strong_links)))
-    equal_array = equal_prep()
-    classes = equal_search(equal_array)
-    equivalence_power = 1
-    flag = False
-    while len(classes) != 2**n and not flag:
-        old_classes = classes.copy()
-        classes = equal_search_final(equal_array, classes)
-        if old_classes == classes:
-            flag = True
-        equivalence_power += 1
-    print("Equivalence classes: {}".format(classes))
-    print("Automate is minimal") if len(classes) == 2**n else print("Automate is not minimal")
-    print("Distinguishability: {}".format(equivalence_power))
-    print("Reduced weight: {}".format(len(classes)))
-    print("Enter s: ")
-    s = list(map(lambda x: int(x), input().split(" ")))
-
-    while True:
-        x = int(input("Enter x: "))
-        s_save = s.copy()
-        s = h_fun(s, x)
-        print("Next state: {}".format(s))
-        print("Output: {}".format(f_fun(s_save, x)))
 
 
 if __name__ == "__main__":

@@ -26,12 +26,14 @@ class SR:
             several_y.append(self.step(x))
         return several_y
 
+    # фи
     def h(self, x):
         if self.mode == 'table':
             self.shift(self.fi_table(x))
         elif self.mode == 'analytical':
             self.shift(self.fi_anal(x))
 
+    # пси
     def f(self, x):
         if self.mode == 'table':
             return self.psi_table(self.fi_table(x))
@@ -207,10 +209,10 @@ eq_classes(sr)
 # Затем мы отсортируем все последовательности в зависимости от того, насколько хорошо они разбивают регистр.
 # После этого подадим регистру на вход конкатенацию лучших из них и ВЕРОЯТНО получим диагностическую последовательность.
 ln = 5  # Длина входной последовательности
-rn = 4  # Размер регистра
-diagnostic_sequence_flag = False
+rn = 3  # Размер регистра
+"""diagnostic_sequence_flag = False
 
-sr = SR(2, to_bin(0, rn), 'table', 'functions/fi.txt', 'functions/psi.txt', )
+sr = SR(2, to_bin(0, rn), 'table', 'functions/fi.txt', 'functions/psi.txt')
 eq_cl = eq_classes(sr)
 print('В регистре вот столько классов эквивалентности:', len(eq_cl))
 print(' ')
@@ -261,11 +263,12 @@ while True:
 
     diagnostic_sequence = []
     if index == -1:
-        print('Сумма всех классов, на которые последовательности разбивают регистр:', s, '< |S|. Следовательно из наших последовательностьей длины ', ln, 'не конкатенировать диагностическую последовательность')
+        print('Сумма всех классов, на которые последовательности разбивают регистр:', s, '< |S|. Следовательно из наших последовательностьей длины ',
+              ln, 'не конкатенировать диагностическую последовательность')
     else:
         for i in range(index):
             diagnostic_sequence += to_bin(positions[i], ln)  # Складываем наиболее сильные разбиватели в супер-разбивателя
-        #print('Супер-разбиватель:', diagnostic_sequence)
+        # print('Супер-разбиватель:', diagnostic_sequence)
 
     y = []  # Массив, в который будут записаны выходные последовательности
     for start_s in range(2 ** rn):  # Перебираем начальные заполенния регистров сдвига
@@ -286,7 +289,7 @@ while True:
     else:
         print('Диагностическая последовательность не найдена. Перемешиваем.')
 
-        counter = 0 # сколько раз будем перемешивать вектора в псевдодиагностической пос-ти
+        counter = 0  # сколько раз будем перемешивать вектора в псевдодиагностической пос-ти
         while True:
             counter += 1
             # print('Попытка: ', counter)
@@ -342,3 +345,4 @@ while True:
             print(' ')
             print('Диагностическая последовательность не найдена.')
             break
+"""
