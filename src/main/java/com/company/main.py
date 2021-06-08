@@ -43,27 +43,35 @@ def depth_first_search(reach_table, mode):
 
             while len(stack) != 0:
                 for j in range(len(reach_table[i])):
+                    # условие на существование ребра в графе между вершинами i и j, для ориентированного при mod = normal
+                    # и для неориентированного при mod = strong
                     if (((reach_table[i][j] == 1 or reach_table[j][i] == 1) and mode == "normal") or (
-                            reach_table[i][j] == 1 and mode == "strong")) and i != j:
+                            # тут учитываем напрваление для ребра из i --> j ( из A --> B )
+                            reach_table[i][j] == 1 and mode == "strong")) and i != j: # i != j , чтобы не учитывать одно и то же ребро
                         flag = False
+                        # проверяем, ходили ли мы по этой вершине уже или нет
                         for item in result:
                             if j in item:
                                 flag = True
                                 break
-
+                        # если ходили, то поиск в глубину из неё не делаем, иначе делаем
                         if flag or j in marked:
                             continue
                         else:
+                            # помещаем в стек и помечаем пройденной текущую вершину
                             marked.append(j)
                             stack.append(j)
                             dps_rec(reach_table, j, marked, stack, result, mode)
+                            # убираем пройденную вершину из стэка, потому что мы её уже добавили в "пройденные"
                             stack.pop(-1)
+                # убираем пройденную вершину из стэка, из которой мы поиск делали потому что мы её уже добавили в "пройденные"
                 stack.pop(-1)
             if mode == "strong":
                 marked_new = []
                 stack_new = []
                 result_new = []
                 marked_copy = marked.copy()
+                # для нахождения сильносвязных компонент необходимо выполнить поиск в глубину ещё раз из уже "пройденных" вершин
                 for j in range(1, len(marked)):
                     dps_rec(reach_table, marked[j], marked_new, stack_new, result_new, "strong")
                     if marked[0] not in marked_new:
@@ -80,32 +88,38 @@ def depth_first_search(reach_table, mode):
 
 def dps_rec(reach_table, i, marked, stack, result, mode):
     for j in range(len(reach_table[i])):
+        # условие на существование ребра в графе между вершинами i и j, для ориентированного при mod = normal
+        # и для неориентированного при mod = strong
         if (((reach_table[i][j] == 1 or reach_table[j][i] == 1) and mode == "normal") or (reach_table[i][j] == 1 and mode == "strong")) and i != j:
             flag = False
+            # проверяем, ходили ли мы по этой вершине уже или нет
             for item in result:
                 if j in item:
                     flag = True
                     break
-
+            # если ходили, то поиск в глубину из неё не делаем, иначе делаем
             if flag or j in marked:
                 continue
             else:
                 marked.append(j)
                 stack.append(j)
                 dps_rec(reach_table, j, marked, stack, result, mode)
+                # так как у нас рекурсивный цикл , в котором мы все пройденные вершины помещаем в стэк,
+                # после добавления в "пройденные вершины" вершину надо убрать из стэка
                 stack.pop(-1)
 
 
 def main():
 
-    reach_table = make_reach_table()
+    adjacency_matrix = make_reach_table()
 
-    links = depth_first_search(reach_table, "normal")           # Ищем компоненты связности
+    # Ищем компоненты связности в режиме normal - для не ориентированного графа
+    links = depth_first_search(adjacency_matrix, "normal")
     print("Автомат связный") if len(links) == 1 \
         else print("Автомат несвязный, потому что делится на {} компонент связности".format(links))
     print("Компоненты связности: {}".format(links))
-
-    strong_links = depth_first_search(reach_table, "strong")    # Ищем компоненты сильной связности
+    # Ищем компоненты сильной связности в режиме strong - для ориентированного графа
+    strong_links = depth_first_search(adjacency_matrix, "strong")
     print("Автомат сильно связный") if len(strong_links) == 1 \
         else print("Автомат не сильно связный, "
                    "потому что делится на {} компонент сильной связности".format(len(strong_links)))
